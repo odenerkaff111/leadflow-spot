@@ -14,7 +14,167 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      campos_personalizados: {
+        Row: {
+          chave: string
+          created_at: string | null
+          id: string
+          lead_id: string
+          valor: string | null
+        }
+        Insert: {
+          chave: string
+          created_at?: string | null
+          id?: string
+          lead_id: string
+          valor?: string | null
+        }
+        Update: {
+          chave?: string
+          created_at?: string | null
+          id?: string
+          lead_id?: string
+          valor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campos_personalizados_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      etapas: {
+        Row: {
+          cor: string | null
+          created_at: string | null
+          id: string
+          nome: string
+          ordem: number
+        }
+        Insert: {
+          cor?: string | null
+          created_at?: string | null
+          id?: string
+          nome: string
+          ordem: number
+        }
+        Update: {
+          cor?: string | null
+          created_at?: string | null
+          id?: string
+          nome?: string
+          ordem?: number
+        }
+        Relationships: []
+      }
+      etiquetas: {
+        Row: {
+          cor: string | null
+          created_at: string | null
+          etiqueta: string
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          cor?: string | null
+          created_at?: string | null
+          etiqueta: string
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          cor?: string | null
+          created_at?: string | null
+          etiqueta?: string
+          id?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etiquetas_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          etapa_id: string | null
+          id: string
+          nome: string
+          origem: string | null
+          telefone: string | null
+          updated_at: string | null
+          valor: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          etapa_id?: string | null
+          id?: string
+          nome: string
+          origem?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          valor?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          etapa_id?: string | null
+          id?: string
+          nome?: string
+          origem?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          valor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notas: {
+        Row: {
+          conteudo: string
+          created_at: string | null
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          conteudo: string
+          created_at?: string | null
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          conteudo?: string
+          created_at?: string | null
+          id?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notas_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
