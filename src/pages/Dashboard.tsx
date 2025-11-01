@@ -1,34 +1,12 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { TrendingUp, Users, DollarSign, Target, Calendar } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TrendingUp, Users, DollarSign, Target } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { format, subDays, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
-import { ptBR } from "date-fns/locale";
-
-type DateFilter = "today" | "week" | "month" | "custom";
 
 const COLORS = ["#8B5CF6", "#3B82F6", "#10B981", "#F59E0B"];
 
 export default function Dashboard() {
-  const [dateFilter, setDateFilter] = useState<DateFilter>("month");
-
-  const getDateRange = () => {
-    const now = new Date();
-    switch (dateFilter) {
-      case "today":
-        return { start: startOfDay(now), end: endOfDay(now) };
-      case "week":
-        return { start: startOfWeek(now, { locale: ptBR }), end: endOfWeek(now, { locale: ptBR }) };
-      case "month":
-        return { start: startOfMonth(now), end: endOfMonth(now) };
-      default:
-        return { start: startOfMonth(now), end: endOfMonth(now) };
-    }
-  };
 
   const { data: etapas } = useQuery({
     queryKey: ["etapas"],
@@ -40,14 +18,11 @@ export default function Dashboard() {
   });
 
   const { data: leads } = useQuery({
-    queryKey: ["leads", dateFilter],
+    queryKey: ["leads"],
     queryFn: async () => {
-      const { start, end } = getDateRange();
       const { data, error } = await supabase
         .from("leads")
-        .select("*")
-        .gte("created_at", start.toISOString())
-        .lte("created_at", end.toISOString());
+        .select("*");
       if (error) throw error;
       return data;
     },
@@ -95,17 +70,6 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">Acompanhe suas métricas e performance</p>
         </div>
-        <Select value={dateFilter} onValueChange={(value) => setDateFilter(value as DateFilter)}>
-          <SelectTrigger className="w-40">
-            <Calendar className="mr-2 h-4 w-4" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="today">Hoje</SelectItem>
-            <SelectItem value="week">Esta Semana</SelectItem>
-            <SelectItem value="month">Este Mês</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {/* KPI Cards */}
