@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, TrendingUp, ChevronLeft, ChevronRight, Settings } from "lucide-react";
 import { Button } from "./ui/button";
 
 interface LayoutProps {
@@ -15,6 +15,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/" },
     { icon: TrendingUp, label: "Funil de Vendas", path: "/funil" },
+    { icon: Settings, label: "Configurações", path: "/configuracoes" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -30,16 +31,11 @@ export const Layout = ({ children }: LayoutProps) => {
       >
         {/* Logo/Header */}
         <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
-          {!collapsed && (
-            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              CRM Pro
-            </h1>
-          )}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
-            className="text-sidebar-foreground hover:bg-sidebar-accent ml-auto"
+            className="text-sidebar-foreground hover:bg-sidebar-accent"
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
