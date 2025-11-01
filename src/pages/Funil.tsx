@@ -41,12 +41,32 @@ export default function Funil() {
       const { error } = await supabase.from("leads").update({ etapa_id: newEtapaId }).eq("id", leadId);
       if (error) throw error;
     },
+    onMutate: async ({ leadId, newEtapaId }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["leads"] });
+
+      // Snapshot the previous value
+      const previousLeads = queryClient.getQueryData(["leads"]);
+
+      // Optimistically update
+      queryClient.setQueryData(["leads"], (old: any) => 
+        old?.map((lead: any) => 
+          lead.id === leadId ? { ...lead, etapa_id: newEtapaId } : lead
+        )
+      );
+
+      return { previousLeads };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      queryClient.setQueryData(["leads"], context?.previousLeads);
+      toast.error("Erro ao mover lead");
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
       toast.success("Lead movido com sucesso!");
     },
-    onError: () => {
-      toast.error("Erro ao mover lead");
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
     },
   });
 

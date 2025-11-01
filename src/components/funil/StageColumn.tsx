@@ -42,9 +42,11 @@ export const StageColumn = ({ stage, leads, totalValue, onLeadClick }: StageColu
         {/* Leads */}
         <div className="space-y-3">
           {leads.map((lead) => (
-            <div key={lead.id} onClick={() => onLeadClick(lead.id)}>
-              <LeadCard lead={lead} />
-            </div>
+            <LeadCard 
+              key={lead.id} 
+              lead={lead} 
+              onClick={() => onLeadClick(lead.id)}
+            />
           ))}
           {leads.length === 0 && (
             <p className="text-center text-sm text-muted-foreground py-8">
