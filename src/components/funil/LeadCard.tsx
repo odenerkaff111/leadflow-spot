@@ -24,23 +24,27 @@ export const LeadCard = ({ lead, isDragging = false, onClick }: LeadCardProps) =
     <Card
       ref={setNodeRef}
       style={style}
-      onClick={onClick}
       className={cn(
-        "p-4 cursor-pointer hover:shadow-elevated transition-all",
+        "p-4 transition-all",
         isDragging && "opacity-50 rotate-3 scale-105"
       )}
     >
       <div className="flex gap-2">
         {/* Drag Handle */}
-        <div 
+        <button 
           {...listeners}
           {...attributes}
-          className="cursor-grab active:cursor-grabbing flex-shrink-0 flex items-start pt-1 hover:text-primary transition-colors"
+          className="cursor-grab active:cursor-grabbing flex-shrink-0 flex items-start pt-1 hover:text-primary transition-colors touch-none"
+          aria-label="Arrastar lead"
         >
           <GripVertical className="h-5 w-5" />
-        </div>
-        {/* Content */}
-        <div className="space-y-2 flex-1">
+        </button>
+
+        {/* Content - Clickable */}
+        <div 
+          className="space-y-2 flex-1 cursor-pointer"
+          onClick={onClick}
+        >
           <h4 className="font-semibold text-foreground">{lead.nome}</h4>
           
           {lead.email && (
