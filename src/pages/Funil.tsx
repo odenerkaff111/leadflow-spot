@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCorners } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCorners, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { StageColumn } from "@/components/funil/StageColumn";
 import { LeadCard } from "@/components/funil/LeadCard";
 import { LeadDetail } from "@/components/funil/LeadDetail";
@@ -17,6 +17,14 @@ export default function Funil() {
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [newLeadDialogOpen, setNewLeadDialogOpen] = useState(false);
   const [stageManagementOpen, setStageManagementOpen] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   const { data: etapas } = useQuery({
     queryKey: ["etapas"],
@@ -110,6 +118,7 @@ export default function Funil() {
 
       {/* Kanban Board */}
       <DndContext
+        sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
