@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, Users, DollarSign, Target } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, FunnelChart, Funnel, LabelList } from "recharts";
 
-const COLORS = ["#8B5CF6", "#3B82F6", "#10B981", "#F59E0B"];
+const COLORS = ["#8B5CF6", "#3B82F6", "#10B981", "#F59E0B", "#EF4444"];
 
 export default function Dashboard() {
 
@@ -30,17 +30,24 @@ export default function Dashboard() {
 
   const leadsGerados = leads?.length || 0;
   const receitaFechada = leads?.filter((l) => {
-    const etapaFechada = etapas?.find((e) => e.id === l.etapa_id && e.nome === "Negócio fechado");
+    const etapaFechada = etapas?.find((e) => e.id === l.etapa_id && e.nome === "Negócio Fechado");
     return etapaFechada;
   }).reduce((sum, l) => sum + Number(l.valor || 0), 0) || 0;
 
   const receitaNegociacao = leads?.filter((l) => {
-    const etapaNegociacao = etapas?.find((e) => e.id === l.etapa_id && e.nome === "Em negociação");
+    const etapaNegociacao = etapas?.find((e) => e.id === l.etapa_id && e.nome === "Negociando");
     return etapaNegociacao;
   }).reduce((sum, l) => sum + Number(l.valor || 0), 0) || 0;
 
+  const negociosPerdidos = leads?.filter((l) => {
+    const etapaPerdida = etapas?.find((e) => e.id === l.etapa_id && e.nome === "Negócio Perdido");
+    return etapaPerdida;
+  }) || [];
+
+  const receitaPerdida = negociosPerdidos.reduce((sum, l) => sum + Number(l.valor || 0), 0);
+
   const taxaConversao = leadsGerados > 0
-    ? ((leads?.filter((l) => etapas?.find((e) => e.id === l.etapa_id && e.nome === "Negócio fechado")).length || 0) / leadsGerados * 100).toFixed(1)
+    ? ((leads?.filter((l) => etapas?.find((e) => e.id === l.etapa_id && e.nome === "Negócio Fechado")).length || 0) / leadsGerados * 100).toFixed(1)
     : "0.0";
 
   // Dados para gráfico de origem
@@ -55,12 +62,14 @@ export default function Dashboard() {
     return acc;
   }, []) || [];
 
-  // Dados para gráfico de funil
-  const funilData = etapas?.map((etapa) => ({
-    name: etapa.nome,
-    leads: leads?.filter((l) => l.etapa_id === etapa.id).length || 0,
-    valor: leads?.filter((l) => l.etapa_id === etapa.id).reduce((sum, l) => sum + Number(l.valor || 0), 0) || 0,
-  })) || [];
+  // Dados para gráfico de funil (apenas etapas ativas, sem Negócio Perdido)
+  const funilData = etapas
+    ?.filter((etapa) => etapa.nome !== "Negócio Perdido")
+    ?.map((etapa) => ({
+      name: etapa.nome,
+      value: leads?.filter((l) => l.etapa_id === etapa.id).length || 0,
+      fill: etapa.cor,
+    })) || [];
 
   return (
     <div className="space-y-6">
@@ -124,14 +133,13 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={funilData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
+              <FunnelChart>
                 <Tooltip />
-                <Legend />
-                <Bar dataKey="leads" fill="#8B5CF6" name="Leads" />
-              </BarChart>
+                <Funnel dataKey="value" data={funilData}>
+                  <LabelList position="right" fill="#000" stroke="none" dataKey="name" />
+                  <LabelList position="inside" fill="#fff" stroke="none" dataKey="value" />
+                </Funnel>
+              </FunnelChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
@@ -163,6 +171,27 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Negócios Perdidos */}
+      <Card className="shadow-card">
+        <CardHeader>
+          <CardTitle>Negócios Perdidos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <p className="text-sm text-muted-foreground mb-2">Quantidade</p>
+              <div className="text-3xl font-bold text-destructive">{negociosPerdidos.length}</div>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground mb-2">Valor Total Perdido</p>
+              <div className="text-3xl font-bold text-destructive">
+                R$ {receitaPerdida.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
