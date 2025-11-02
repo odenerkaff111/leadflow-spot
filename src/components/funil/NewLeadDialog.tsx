@@ -21,7 +21,7 @@ export const NewLeadDialog = ({ open, onOpenChange, etapas }: NewLeadDialogProps
     email: "",
     telefone: "",
     valor: "",
-    origem: "tráfego",
+    origem: "Facebook Marketplace",
     etapa_id: etapas[0]?.id || "",
   });
 
@@ -39,7 +39,7 @@ export const NewLeadDialog = ({ open, onOpenChange, etapas }: NewLeadDialogProps
         email: "",
         telefone: "",
         valor: "",
-        origem: "tráfego",
+        origem: "Facebook Marketplace",
         etapa_id: etapas[0]?.id || "",
       });
     },
@@ -115,13 +115,23 @@ export const NewLeadDialog = ({ open, onOpenChange, etapas }: NewLeadDialogProps
           </div>
 
           <div>
-            <Label htmlFor="origem">Origem</Label>
-            <Input
-              id="origem"
+            <Label htmlFor="origem">Origem dos Leads</Label>
+            <Select
               value={formData.origem}
-              onChange={(e) => setFormData({ ...formData, origem: e.target.value })}
-              placeholder="Ex: Instagram, Indicação"
-            />
+              onValueChange={(value) => setFormData({ ...formData, origem: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Facebook Marketplace">Facebook Marketplace</SelectItem>
+                <SelectItem value="Instagram">Instagram</SelectItem>
+                <SelectItem value="Shopee">Shopee</SelectItem>
+                <SelectItem value="Mercado Livre">Mercado Livre</SelectItem>
+                <SelectItem value="Tiktok Shop">Tiktok Shop</SelectItem>
+                <SelectItem value="Site">Site</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
