@@ -54,7 +54,14 @@ export const NewLeadDialog = ({ open, onOpenChange, etapas }: NewLeadDialogProps
       toast.error("Nome é obrigatório");
       return;
     }
-    createLead.mutate(formData);
+    
+    // Converter valor vazio para null ou 0
+    const dataToSubmit = {
+      ...formData,
+      valor: formData.valor === "" ? 0 : Number(formData.valor),
+    };
+    
+    createLead.mutate(dataToSubmit);
   };
 
   return (
