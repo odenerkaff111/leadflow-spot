@@ -136,8 +136,40 @@ export default function Dashboard() {
               <FunnelChart>
                 <Tooltip />
                 <Funnel dataKey="value" data={funilData}>
-                  <LabelList position="right" fill="#000" stroke="none" dataKey="name" />
-                  <LabelList position="inside" fill="#fff" stroke="none" dataKey="value" />
+                  <LabelList 
+                    position="inside" 
+                    fill="#fff" 
+                    stroke="none" 
+                    content={({ x, y, width, height, value, name }: any) => {
+                      const centerX = Number(x) + Number(width) / 2;
+                      const centerY = Number(y) + Number(height) / 2;
+                      return (
+                        <g>
+                          <text 
+                            x={centerX} 
+                            y={centerY - 8} 
+                            fill="#fff" 
+                            textAnchor="middle" 
+                            dominantBaseline="middle"
+                            fontSize="18"
+                            fontWeight="bold"
+                          >
+                            {value}
+                          </text>
+                          <text 
+                            x={centerX} 
+                            y={centerY + 12} 
+                            fill="#fff" 
+                            textAnchor="middle" 
+                            dominantBaseline="middle"
+                            fontSize="12"
+                          >
+                            {name}
+                          </text>
+                        </g>
+                      );
+                    }}
+                  />
                 </Funnel>
               </FunnelChart>
             </ResponsiveContainer>
