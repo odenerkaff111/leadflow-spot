@@ -3,29 +3,40 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, Users, DollarSign, Target } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, FunnelChart, Funnel, LabelList } from "recharts";
+import { useAuth } from "@/contexts/AuthContext";
 
 const COLORS = ["#8B5CF6", "#3B82F6", "#10B981", "#F59E0B", "#EF4444"];
 
 export default function Dashboard() {
+  const { company } = useAuth();
 
   const { data: etapas } = useQuery({
-    queryKey: ["etapas"],
+    queryKey: ["etapas", company?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("etapas").select("*").order("ordem");
+      if (!company?.id) return [];
+      const { data, error } = await supabase
+        .from("etapas")
+        .select("*")
+        .eq("company_id", company.id)
+        .order("ordem");
       if (error) throw error;
       return data;
     },
+    enabled: !!company?.id,
   });
 
   const { data: leads } = useQuery({
-    queryKey: ["leads"],
+    queryKey: ["leads", company?.id],
     queryFn: async () => {
+      if (!company?.id) return [];
       const { data, error } = await supabase
         .from("leads")
-        .select("*");
+        .select("*")
+        .eq("company_id", company.id);
       if (error) throw error;
       return data;
     },
+    enabled: !!company?.id,
   });
 
   const leadsGerados = leads?.length || 0;

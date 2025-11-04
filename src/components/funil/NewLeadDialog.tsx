@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NewLeadDialogProps {
   open: boolean;
@@ -16,6 +17,7 @@ interface NewLeadDialogProps {
 
 export const NewLeadDialog = ({ open, onOpenChange, etapas }: NewLeadDialogProps) => {
   const queryClient = useQueryClient();
+  const { company } = useAuth();
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
@@ -31,7 +33,7 @@ export const NewLeadDialog = ({ open, onOpenChange, etapas }: NewLeadDialogProps
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["leads", company?.id] });
       toast.success("Lead criado com sucesso!");
       onOpenChange(false);
       setFormData({
@@ -55,9 +57,15 @@ export const NewLeadDialog = ({ open, onOpenChange, etapas }: NewLeadDialogProps
       return;
     }
     
+    if (!company?.id) {
+      toast.error("Empresa não encontrada");
+      return;
+    }
+    
     // Converter valor vazio para null ou 0
     const dataToSubmit = {
       ...formData,
+      company_id: company.id,
       valor: formData.valor === "" ? 0 : Number(formData.valor),
     };
     

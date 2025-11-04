@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface StageManagementDialogProps {
   open: boolean;
@@ -16,26 +17,36 @@ interface StageManagementDialogProps {
 
 export const StageManagementDialog = ({ open, onOpenChange }: StageManagementDialogProps) => {
   const queryClient = useQueryClient();
+  const { company } = useAuth();
   const [newStageName, setNewStageName] = useState("");
   const [newStageColor, setNewStageColor] = useState("#8B5CF6");
 
   const { data: etapas } = useQuery({
-    queryKey: ["etapas"],
+    queryKey: ["etapas", company?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("etapas").select("*").order("ordem");
+      if (!company?.id) return [];
+      const { data, error } = await supabase
+        .from("etapas")
+        .select("*")
+        .eq("company_id", company.id)
+        .order("ordem");
       if (error) throw error;
       return data;
     },
+    enabled: !!company?.id,
   });
 
   const createStage = useMutation({
     mutationFn: async ({ nome, cor }: { nome: string; cor: string }) => {
+      if (!company?.id) throw new Error("Empresa não encontrada");
       const maxOrdem = Math.max(...(etapas?.map((e) => e.ordem) || [0]));
-      const { error } = await supabase.from("etapas").insert({ nome, cor, ordem: maxOrdem + 1 });
+      const { error } = await supabase
+        .from("etapas")
+        .insert({ nome, cor, ordem: maxOrdem + 1, company_id: company.id });
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["etapas"] });
+      queryClient.invalidateQueries({ queryKey: ["etapas", company?.id] });
       toast.success("Etapa criada!");
       setNewStageName("");
       setNewStageColor("#8B5CF6");
@@ -48,7 +59,7 @@ export const StageManagementDialog = ({ open, onOpenChange }: StageManagementDia
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["etapas"] });
+      queryClient.invalidateQueries({ queryKey: ["etapas", company?.id] });
       toast.success("Etapa removida!");
     },
     onError: () => {

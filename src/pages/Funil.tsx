@@ -10,9 +10,11 @@ import { StageManagementDialog } from "@/components/funil/StageManagementDialog"
 import { Button } from "@/components/ui/button";
 import { Plus, Settings } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Funil() {
   const queryClient = useQueryClient();
+  const { company } = useAuth();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [newLeadDialogOpen, setNewLeadDialogOpen] = useState(false);
@@ -27,21 +29,32 @@ export default function Funil() {
   );
 
   const { data: etapas } = useQuery({
-    queryKey: ["etapas"],
+    queryKey: ["etapas", company?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("etapas").select("*").order("ordem");
+      if (!company?.id) return [];
+      const { data, error } = await supabase
+        .from("etapas")
+        .select("*")
+        .eq("company_id", company.id)
+        .order("ordem");
       if (error) throw error;
       return data;
     },
+    enabled: !!company?.id,
   });
 
   const { data: leads } = useQuery({
-    queryKey: ["leads"],
+    queryKey: ["leads", company?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("leads").select("*");
+      if (!company?.id) return [];
+      const { data, error } = await supabase
+        .from("leads")
+        .select("*")
+        .eq("company_id", company.id);
       if (error) throw error;
       return data;
     },
+    enabled: !!company?.id,
   });
 
   const moveLead = useMutation({
@@ -51,13 +64,13 @@ export default function Funil() {
     },
     onMutate: async ({ leadId, newEtapaId }) => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["leads"] });
+      await queryClient.cancelQueries({ queryKey: ["leads", company?.id] });
 
       // Snapshot the previous value
-      const previousLeads = queryClient.getQueryData(["leads"]);
+      const previousLeads = queryClient.getQueryData(["leads", company?.id]);
 
       // Optimistically update
-      queryClient.setQueryData(["leads"], (old: any) => 
+      queryClient.setQueryData(["leads", company?.id], (old: any) => 
         old?.map((lead: any) => 
           lead.id === leadId ? { ...lead, etapa_id: newEtapaId } : lead
         )
@@ -67,14 +80,14 @@ export default function Funil() {
     },
     onError: (_err, _variables, context) => {
       // Rollback on error
-      queryClient.setQueryData(["leads"], context?.previousLeads);
+      queryClient.setQueryData(["leads", company?.id], context?.previousLeads);
       toast.error("Erro ao mover lead");
     },
     onSuccess: () => {
       toast.success("Lead movido com sucesso!");
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["leads", company?.id] });
     },
   });
 

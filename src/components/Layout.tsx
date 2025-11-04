@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, TrendingUp, ChevronLeft, ChevronRight, Settings } from "lucide-react";
+import { LayoutDashboard, TrendingUp, ChevronLeft, ChevronRight, Settings, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ interface LayoutProps {
 export const Layout = ({ children }: LayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const { signOut, company } = useAuth();
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/" },
@@ -31,6 +33,9 @@ export const Layout = ({ children }: LayoutProps) => {
       >
         {/* Logo/Header */}
         <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
+          {!collapsed && company && (
+            <span className="font-semibold text-sidebar-foreground truncate">{company.name}</span>
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -62,6 +67,21 @@ export const Layout = ({ children }: LayoutProps) => {
             );
           })}
         </nav>
+
+        {/* Logout Button */}
+        <div className="p-2 border-t border-sidebar-border">
+          <Button
+            variant="ghost"
+            onClick={signOut}
+            className={cn(
+              "w-full justify-start gap-3 text-destructive hover:bg-destructive/10",
+              collapsed && "justify-center px-2"
+            )}
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            {!collapsed && <span>Sair</span>}
+          </Button>
+        </div>
       </aside>
 
       {/* Main Content */}
