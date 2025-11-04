@@ -17,6 +17,7 @@ export type Database = {
       campos_personalizados: {
         Row: {
           chave: string
+          company_id: string | null
           created_at: string | null
           id: string
           lead_id: string
@@ -24,6 +25,7 @@ export type Database = {
         }
         Insert: {
           chave: string
+          company_id?: string | null
           created_at?: string | null
           id?: string
           lead_id: string
@@ -31,12 +33,20 @@ export type Database = {
         }
         Update: {
           chave?: string
+          company_id?: string | null
           created_at?: string | null
           id?: string
           lead_id?: string
           valor?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "campos_personalizados_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "campos_personalizados_lead_id_fkey"
             columns: ["lead_id"]
@@ -46,8 +56,36 @@ export type Database = {
           },
         ]
       }
+      companies: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          owner_id: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       etapas: {
         Row: {
+          company_id: string | null
           cor: string | null
           created_at: string | null
           id: string
@@ -55,6 +93,7 @@ export type Database = {
           ordem: number
         }
         Insert: {
+          company_id?: string | null
           cor?: string | null
           created_at?: string | null
           id?: string
@@ -62,16 +101,26 @@ export type Database = {
           ordem: number
         }
         Update: {
+          company_id?: string | null
           cor?: string | null
           created_at?: string | null
           id?: string
           nome?: string
           ordem?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "etapas_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       etiquetas: {
         Row: {
+          company_id: string | null
           cor: string | null
           created_at: string | null
           etiqueta: string
@@ -79,6 +128,7 @@ export type Database = {
           lead_id: string
         }
         Insert: {
+          company_id?: string | null
           cor?: string | null
           created_at?: string | null
           etiqueta: string
@@ -86,6 +136,7 @@ export type Database = {
           lead_id: string
         }
         Update: {
+          company_id?: string | null
           cor?: string | null
           created_at?: string | null
           etiqueta?: string
@@ -93,6 +144,13 @@ export type Database = {
           lead_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "etiquetas_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "etiquetas_lead_id_fkey"
             columns: ["lead_id"]
@@ -104,6 +162,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          company_id: string | null
           created_at: string | null
           email: string | null
           etapa_id: string | null
@@ -115,6 +174,7 @@ export type Database = {
           valor: number | null
         }
         Insert: {
+          company_id?: string | null
           created_at?: string | null
           email?: string | null
           etapa_id?: string | null
@@ -126,6 +186,7 @@ export type Database = {
           valor?: number | null
         }
         Update: {
+          company_id?: string | null
           created_at?: string | null
           email?: string | null
           etapa_id?: string | null
@@ -138,6 +199,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "leads_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "leads_etapa_id_fkey"
             columns: ["etapa_id"]
             isOneToOne: false
@@ -148,24 +216,34 @@ export type Database = {
       }
       notas: {
         Row: {
+          company_id: string | null
           conteudo: string
           created_at: string | null
           id: string
           lead_id: string
         }
         Insert: {
+          company_id?: string | null
           conteudo: string
           created_at?: string | null
           id?: string
           lead_id: string
         }
         Update: {
+          company_id?: string | null
           conteudo?: string
           created_at?: string | null
           id?: string
           lead_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "notas_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notas_lead_id_fkey"
             columns: ["lead_id"]
@@ -175,15 +253,93 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          company_id: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _company_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      user_in_company: {
+        Args: { _company_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "owner" | "admin" | "agent" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -310,6 +466,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["owner", "admin", "agent", "viewer"],
+    },
   },
 } as const
