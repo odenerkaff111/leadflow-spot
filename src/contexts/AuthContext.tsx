@@ -40,21 +40,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   const fetchProfile = async (userId: string) => {
-    const { data: profileData } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("Erro ao buscar perfil:", profileError);
+      return;
+    }
 
     if (profileData) {
       setProfile(profileData);
 
       if (profileData.company_id) {
-        const { data: companyData } = await supabase
+        const { data: companyData, error: companyError } = await supabase
           .from("companies")
           .select("*")
           .eq("id", profileData.company_id)
-          .single();
+          .maybeSingle();
+
+        if (companyError) {
+          console.error("Erro ao buscar empresa:", companyError);
+          return;
+        }
 
         if (companyData) {
           setCompany(companyData);
